@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+dist/
+build/
+*.egg-info/
+.DS_Store
+*.swp
+*.swo
+.vscode/settings.json
+.twine-cache/
