@@ -137,18 +137,16 @@ class RetroUI:
 
 
 
-    def draw_status_lines(self):
+    def draw_status_lines(self, line1, line2):
         if self.height > 4:
-            status1 = "System Status: All servers operational. Collection completed successfully."
-            status2 = "F1=Help  F2=Refresh  F3=Sort  ESC=Exit"
-            self.scr.addstr(self.height - 4, 2, status1, curses.A_DIM)
-            self.scr.addstr(self.height - 3, 2, status2, curses.A_DIM)
+            self.scr.addstr(self.height - 4, 2, line1, curses.A_DIM)
+            self.scr.addstr(self.height - 3, 2, line2, curses.A_DIM)
 
     def add_title(self, title):
         self.draw_title_line()
 
     def add_status_bar(self, line1, line2):
-        self.draw_status_lines()
+        self.draw_status_lines(line1, line2)
 
     def add_table(self, columns, data_rows):
         table = self.Table(columns, data_rows, self.width)
