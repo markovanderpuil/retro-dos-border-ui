@@ -25,7 +25,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="retro-dos-border-ui",
-    version="0.1.2",
+    version="0.1.3",
     author="Marko van der Puil",
     url="https://github.com/markovanderpuil/retro-dos-border-ui",
     description="A retro DOS-style console UI library using curses.",
