@@ -38,11 +38,23 @@ T_DOWN = '\u252c'    # ┬
 T_UP = '\u2534'      # ┴
 
 class RetroUI:
+    class Colors:
+        WHITE_RED = 1
+        SUCCESS = 2  # Green on black
+        ERROR = 3    # Red on black
+        WARNING = 4  # Yellow on black
+        INFO = 5     # Blue on black
+        SECONDARY = 6 # Magenta on black
+        ACCENT = 7   # Cyan on black
+        DEFAULT = 8  # White on black
+        GREY = 8     # White (use A_DIM elsewhere)
     class Table:
-        def __init__(self, columns, data_rows, width):
+        def __init__(self, columns, data_rows, width, row_colors=None, highlight_row=None):
             self.columns = list(columns)
             self.data_rows = [list(row) for row in data_rows]
             self.width = width
+            self.row_colors = row_colors if row_colors is not None else {}
+            self.highlight_row = highlight_row
             self.adjust_columns()
             # Calculate positions
             self.col_pos = [2]
@@ -98,17 +110,35 @@ class RetroUI:
         def draw_data_rows(self, scr, start_y):
             for i, row in enumerate(self.data_rows):
                 y = start_y + i
+                base_pair = self.row_colors.get(i, 8)
+                if self.highlight_row == i:
+                    if base_pair == 2:
+                        attr = curses.color_pair(9)   # Black on green
+                    elif base_pair == 3:
+                        attr = curses.color_pair(10)  # Black on red
+                    elif base_pair == 4:
+                        attr = curses.color_pair(11)  # Black on yellow
+                    elif base_pair == 5:
+                        attr = curses.color_pair(12)  # Black on blue
+                    elif base_pair == 6:
+                        attr = curses.color_pair(13)  # Black on magenta
+                    elif base_pair == 7:
+                        attr = curses.color_pair(14)  # Black on cyan
+                    else:
+                        attr = curses.color_pair(15)  # Black on red for default
+                else:
+                    attr = curses.color_pair(base_pair)
                 for j, cell in enumerate(row):
                     x = self.col_pos[j]
                     width = self.columns[j][1]
                     try:
-                        scr.addstr(y, x, cell.ljust(width))
+                        scr.addstr(y, x, cell.ljust(width), attr)
                     except curses.error:
                         pass
                 # Draw vertical lines
                 for v_x in self.vline_xs[:-1]:
                     try:
-                        scr.addstr(y, v_x, VLINE)
+                        scr.addstr(y, v_x, VLINE, attr)
                     except curses.error:
                         pass
 
@@ -127,6 +157,23 @@ class RetroUI:
         self.current_y_pos = 0
         self.scr.clear()
         # Curses setup done in main by curses.wrapper
+        curses.start_color()
+        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_RED)  # White on red (old highlight)
+        curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)   # Success
+        curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)     # Error
+        curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)  # Warning
+        curses.init_pair(5, curses.COLOR_BLUE, curses.COLOR_BLACK)    # Info
+        curses.init_pair(6, curses.COLOR_MAGENTA, curses.COLOR_BLACK) # Secondary
+        curses.init_pair(7, curses.COLOR_CYAN, curses.COLOR_BLACK)    # Accent
+        curses.init_pair(8, curses.COLOR_WHITE, curses.COLOR_BLACK)   # Default
+        # Highlight color pairs: black text on colored background (inverted)
+        curses.init_pair(9, curses.COLOR_BLACK, curses.COLOR_GREEN)    # Highlight Success
+        curses.init_pair(10, curses.COLOR_BLACK, curses.COLOR_RED)    # Highlight Error
+        curses.init_pair(11, curses.COLOR_BLACK, curses.COLOR_YELLOW) # Highlight Warning
+        curses.init_pair(12, curses.COLOR_BLACK, curses.COLOR_BLUE)   # Highlight Info
+        curses.init_pair(13, curses.COLOR_BLACK, curses.COLOR_MAGENTA)# Highlight Secondary
+        curses.init_pair(14, curses.COLOR_BLACK, curses.COLOR_CYAN)   # Highlight Accent
+        curses.init_pair(15, curses.COLOR_BLACK, curses.COLOR_WHITE)    # Default highlight
 
     def draw_border_top(self):
         # Draw top border
@@ -171,8 +218,8 @@ class RetroUI:
     def add_status_bar(self, line1, line2):
         self.draw_status_lines(line1, line2)
 
-    def add_table(self, columns, data_rows):
-        table = self.Table(columns, data_rows, self.width)
+    def add_table(self, columns, data_rows, row_colors=None, highlight_row=None):
+        table = self.Table(columns, data_rows, self.width, row_colors, highlight_row)
         # Draw table components
         table.draw_top_sep(self.scr, self.current_y_pos)
         self.current_y_pos += 1
