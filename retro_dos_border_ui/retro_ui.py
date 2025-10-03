@@ -199,8 +199,7 @@ class RetroUI:
             except curses.error:
                 pass
 
-    def draw_title_line(self):
-        title = "Retro Interface"
+    def draw_title_line(self,title="Retro Interface"):
         start_x = (self.width // 2) - (len(title) // 2)
         self.scr.addstr(1, start_x, title, curses.A_BOLD | curses.A_REVERSE)
         self.current_y_pos = 2  # Set to next available position
@@ -213,7 +212,7 @@ class RetroUI:
             self.scr.addstr(self.height - 3, 2, line2, curses.A_DIM)
 
     def add_title(self, title):
-        self.draw_title_line()
+        self.draw_title_line(title)
 
     def add_status_bar(self, line1, line2):
         self.draw_status_lines(line1, line2)

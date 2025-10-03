@@ -70,7 +70,7 @@ def main(stdscr):
             ui.draw_border_bottom()
 
             # Add content
-            ui.add_title("My App")
+            ui.add_title("My App !!!")
             ui.add_table(
                 columns=columns,
                 data_rows=data_rows,
